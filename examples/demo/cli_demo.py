@@ -16,7 +16,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 from transformers.trainer_utils import set_seed
 
-DEFAULT_CKPT_PATH = "Qwen/Qwen2.5-7B-Instruct"
+DEFAULT_CKPT_PATH = "D:\\Project\\Python_Project\\LLM-local\\models\\Qwen\\Qwen3-1.7B-Int8\\"
 
 _WELCOME_MSG = """\
 Welcome to use Qwen2.5-Instruct model, type text to start chat, type :h to show command help.
@@ -83,7 +83,7 @@ def _setup_readline():
 def _load_model_tokenizer(args):
     tokenizer = AutoTokenizer.from_pretrained(
         args.checkpoint_path,
-        resume_download=True,
+        resume_download=False,
     )
 
     if args.cpu_only:
@@ -167,9 +167,12 @@ def _chat_stream(model, tokenizer, query, history):
 
 
 def main():
+    # 添加启动参数
     parser = argparse.ArgumentParser(
-        description="Qwen2.5-Instruct command-line interactive chat demo."
+        description="Qwen3-4B-Q5_K_M command-line interactive chat demo."
     )
+
+    # 要启动的模型路径，默认为"D:\\Project\\Python_Project\\LLM-local\\models\\Qwen\\Qwen3-1.7B-Int8\\"
     parser.add_argument(
         "-c",
         "--checkpoint-path",
@@ -177,7 +180,11 @@ def main():
         default=DEFAULT_CKPT_PATH,
         help="Checkpoint name or path, default to %(default)r",
     )
+
+    # 随机数种子
     parser.add_argument("-s", "--seed", type=int, default=1234, help="Random seed")
+
+    # 是否只使用CPU,store_true表示在出现此选项是使其为true，否则默认false
     parser.add_argument(
         "--cpu-only", action="store_true", help="Run demo with CPU only"
     )
@@ -185,6 +192,7 @@ def main():
 
     history, response = [], ""
 
+    # 用上述参数加载模型
     model, tokenizer = _load_model_tokenizer(args)
     orig_gen_config = deepcopy(model.generation_config)
 
@@ -251,7 +259,7 @@ def main():
                             continue
                         conf_key, conf_value_str = (
                             key_value_pairs_str[:eq_idx],
-                            key_value_pairs_str[eq_idx + 1 :],
+                            key_value_pairs_str[eq_idx + 1:],
                         )
                         try:
                             conf_value = eval(conf_value_str)
